@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Logo from './assets/logo.png'
 import Bg from './assets/bg.png'
-import { X, Menu, Globe, Palette, Code, Smartphone, Zap, Users, Award } from 'lucide-react';
+import { X, Menu, Globe, Palette, Code, Smartphone, Zap, Users, Award, AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function ArtevaWebsite() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,29 +16,106 @@ export default function ArtevaWebsite() {
     businessName: '',
     serviceType: ''
   });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  // Validation functions
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  const handleSubmit = () => {
-    if (!formData.name || !formData.email || !formData.phone || !formData.serviceType) {
-      alert('يرجى ملء جميع الحقول المطلوبة');
+  const validatePhone = (phone) => {
+    // Remove spaces and special characters for validation
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+    return cleanPhone.length >= 10;
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    // Name validation
+    if (!formData.name.trim()) {
+      errors.name = 'الاسم الكامل مطلوب';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'الاسم يجب أن يكون على الأقل حرفين';
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      errors.email = 'البريد الإلكتروني مطلوب';
+    } else if (!validateEmail(formData.email)) {
+      errors.email = 'يرجى إدخال بريد إلكتروني صحيح';
+    }
+
+    // Phone validation
+    if (!formData.phone.trim()) {
+      errors.phone = 'رقم الهاتف مطلوب';
+    } else if (!validatePhone(formData.phone)) {
+      errors.phone = 'يرجى إدخال رقم هاتف صحيح (10 أرقام على الأقل)';
+    }
+
+    // Service type validation
+    if (!formData.serviceType) {
+      errors.serviceType = 'يرجى اختيار نوع الخدمة';
+    }
+
+    return errors;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors({
+        ...formErrors,
+        [name]: ''
+      });
+    }
+  };
+
+  const handleSubmit = async () => {
+    const errors = validateForm();
+    
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       return;
     }
-    console.log('Form submitted:', formData);
-    alert('تم إرسال طلبك بنجاح! سنتواصل معك قريباً');
+
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      console.log('Form submitted:', formData);
+      alert('تم إرسال طلبك بنجاح! سنتواصل معك قريباً');
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        businessName: '',
+        serviceType: ''
+      });
+      setFormErrors({});
+      setShowConsultationForm(false);
+    } catch (error) {
+      alert('حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeForm = () => {
     setShowConsultationForm(false);
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      businessName: '',
-      serviceType: ''
-    });
+    setFormErrors({});
   };
 
   return (
@@ -54,7 +131,6 @@ export default function ArtevaWebsite() {
                   alt="Arteva Logo" 
                   width={100} 
                   height={100}
-                  // className="w-10 h-10 object-contain"
                 />
               </div>
             </div>
@@ -239,39 +315,6 @@ export default function ArtevaWebsite() {
               </div>
             </div>
 
-            {/* Mobile Apps
-            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all border border-gray-100">
-              <div className="flex items-start gap-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center flex-shrink-0">
-                  <Smartphone className="text-white" size={32} />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">تطبيقات الهاتف المحمول</h3>
-                  <p className="text-gray-600 mb-6">
-                    تطبيقات جوال متطورة لنظامي iOS و Android بتصميم عصري وأداء فائق لتصل لعملائك في كل مكان
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full ml-2"></div>
-                      تطبيقات iOS
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full ml-2"></div>
-                      تطبيقات Android
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full ml-2"></div>
-                      تطبيقات هجينة
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full ml-2"></div>
-                      تطبيقات تجارية
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> */}
-
             {/* Branding & Design */}
             <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all border border-gray-100 lg:col-span-2">
               <div className="flex items-start gap-6">
@@ -304,18 +347,10 @@ export default function ArtevaWebsite() {
                       <div className="w-2 h-2 bg-pink-500 rounded-full ml-2"></div>
                       UI/UX Design
                     </div>
-                    {/* <div className="flex items-center">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full ml-2"></div>
-                      المواد الطباعية
-                    </div> */}
                     <div className="flex items-center">
                       <div className="w-2 h-2 bg-pink-500 rounded-full ml-2"></div>
                       تصميم الإعلانات
                     </div>
-                    {/* <div className="flex items-center">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full ml-2"></div>
-                      حقائب العلامة التجارية
-                    </div> */}
                   </div>
                 </div>
               </div>
@@ -358,7 +393,6 @@ export default function ArtevaWebsite() {
               <h4 className="text-lg font-semibold mb-6">خدماتنا</h4>
               <ul className="space-y-3 text-gray-400">
                 <li className="hover:text-white transition-colors cursor-pointer">تطوير المواقع الإلكترونية</li>
-                {/* <li className="hover:text-white transition-colors cursor-pointer">تطبيقات الهاتف المحمول</li> */}
                 <li className="hover:text-white transition-colors cursor-pointer">الهوية البصرية والتصميم</li>
                 <li className="hover:text-white transition-colors cursor-pointer">UI/UX Design</li>
               </ul>
@@ -379,20 +413,20 @@ export default function ArtevaWebsite() {
         </div>
       </footer>
 
-      {/* Enhanced Consultation Form Modal with Navy Background */}
+      {/* Enhanced Consultation Form Modal */}
       {showConsultationForm && (
         <div className="fixed inset-0 z-50">
-          {/* Enhanced Blur Background */}
+          {/* Background Overlay */}
           <div 
             className="absolute inset-0 bg-black/70 backdrop-blur-md"
-            onClick={() => setShowConsultationForm(false)}
+            onClick={closeForm}
           ></div>
           
-          {/* Form Container */}
-          <div className="relative  flex items-center justify-center p-4 overflow-y-auto min-h-screen">
-            <div className="w-full max-w-lg overflow-y-auto min-h-screen ">
-              {/* Navy Form with Glass Effect */}
-              <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900 rounded-3xl p-8 shadow-2xl border border-white/10 backdrop-blur-sm overflow-hidden relative">
+          {/* Form Container - Fixed positioning */}
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              {/* Form */}
+              <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-blue-900 rounded-3xl p-8 shadow-2xl border border-white/10 backdrop-blur-sm relative">
                 {/* Decorative Elements */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl"></div>
@@ -404,7 +438,7 @@ export default function ArtevaWebsite() {
                       <p className="text-slate-300">دعنا نناقش مشروعك ونحوله إلى واقع</p>
                     </div>
                     <button 
-                      onClick={() => setShowConsultationForm(false)}
+                      onClick={closeForm}
                       className="text-slate-400 hover:text-white p-2 hover:bg-white/10 rounded-full transition-all"
                     >
                       <X size={24} />
@@ -412,6 +446,7 @@ export default function ArtevaWebsite() {
                   </div>
 
                   <div className="space-y-6">
+                    {/* Name Field */}
                     <div>
                       <label className="block text-sm font-semibold text-slate-200 mb-3">الاسم الكامل *</label>
                       <input
@@ -419,11 +454,20 @@ export default function ArtevaWebsite() {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all text-white placeholder:text-slate-400"
+                        className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white placeholder:text-slate-400 ${
+                          formErrors.name ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-blue-400'
+                        }`}
                         placeholder="أدخل اسمك الكامل"
                       />
+                      {formErrors.name && (
+                        <div className="flex items-center mt-2 text-red-400 text-sm">
+                          <AlertCircle size={16} className="ml-1" />
+                          {formErrors.name}
+                        </div>
+                      )}
                     </div>
 
+                    {/* Email Field */}
                     <div>
                       <label className="block text-sm font-semibold text-slate-200 mb-3">البريد الإلكتروني *</label>
                       <input
@@ -431,11 +475,20 @@ export default function ArtevaWebsite() {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all text-white placeholder:text-slate-400"
+                        className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white placeholder:text-slate-400 ${
+                          formErrors.email ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-blue-400'
+                        }`}
                         placeholder="example@email.com"
                       />
+                      {formErrors.email && (
+                        <div className="flex items-center mt-2 text-red-400 text-sm">
+                          <AlertCircle size={16} className="ml-1" />
+                          {formErrors.email}
+                        </div>
+                      )}
                     </div>
 
+                    {/* Phone Field */}
                     <div>
                       <label className="block text-sm font-semibold text-slate-200 mb-3">رقم الهاتف *</label>
                       <input
@@ -443,11 +496,20 @@ export default function ArtevaWebsite() {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all text-white placeholder:text-slate-400"
+                        className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white placeholder:text-slate-400 ${
+                          formErrors.phone ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-blue-400'
+                        }`}
                         placeholder="+213 XX XXX XXXX"
                       />
+                      {formErrors.phone && (
+                        <div className="flex items-center mt-2 text-red-400 text-sm">
+                          <AlertCircle size={16} className="ml-1" />
+                          {formErrors.phone}
+                        </div>
+                      )}
                     </div>
 
+                    {/* Business Name Field */}
                     <div>
                       <label className="block text-sm font-semibold text-slate-200 mb-3">اسم الشركة</label>
                       <input
@@ -456,17 +518,20 @@ export default function ArtevaWebsite() {
                         value={formData.businessName}
                         onChange={handleInputChange}
                         className="w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all text-white placeholder:text-slate-400"
-                        placeholder="اسم شركتك (البراند او المنتح)"
+                        placeholder="اسم شركتك (البراند او المنتج)"
                       />
                     </div>
 
+                    {/* Service Type Field */}
                     <div>
                       <label className="block text-sm font-semibold text-slate-200 mb-3">نوع الخدمة *</label>
                       <select
                         name="serviceType"
                         value={formData.serviceType}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all text-white"
+                        className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white ${
+                          formErrors.serviceType ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-blue-400'
+                        }`}
                       >
                         <option value="" className="bg-slate-800 text-white">اختر نوع الخدمة</option>
                         <option value="website" className="bg-slate-800 text-white">تطوير موقع ويب</option>
@@ -476,13 +541,32 @@ export default function ArtevaWebsite() {
                         <option value="ecommerce" className="bg-slate-800 text-white">متجر إلكتروني</option>
                         <option value="consultation" className="bg-slate-800 text-white">استشارة تقنية</option>
                       </select>
+                      {formErrors.serviceType && (
+                        <div className="flex items-center mt-2 text-red-400 text-sm">
+                          <AlertCircle size={16} className="ml-1" />
+                          {formErrors.serviceType}
+                        </div>
+                      )}
                     </div>
 
+                    {/* Submit Button */}
                     <button
                       onClick={handleSubmit}
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-semibold transition-all transform hover:scale-[1.02] shadow-lg"
+                      disabled={isSubmitting}
+                      className={`w-full py-4 px-6 rounded-xl font-semibold transition-all transform shadow-lg flex items-center justify-center ${
+                        isSubmitting 
+                          ? 'bg-gray-600 cursor-not-allowed' 
+                          : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:scale-[1.02]'
+                      } text-white`}
                     >
-                      إرسال الطلب
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2"></div>
+                          جاري الإرسال...
+                        </>
+                      ) : (
+                        'إرسال الطلب'
+                      )}
                     </button>
 
                     <div className="bg-blue-500/10 backdrop-blur-sm border border-blue-400/20 p-4 rounded-xl">
