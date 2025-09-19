@@ -23,14 +23,12 @@ export default function ArtevaWebsite() {
   const [submitSuccess, setSubmitSuccess] = useState(false); 
 
 
-  // Validation functions
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
   const validatePhone = (phone) => {
-    // Remove spaces and special characters for validation
     const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
     return cleanPhone.length >= 10;
   };
@@ -38,28 +36,24 @@ export default function ArtevaWebsite() {
   const validateForm = () => {
     const errors = {};
 
-    // Name validation
     if (!formData.name.trim()) {
       errors.name = 'الاسم الكامل مطلوب';
     } else if (formData.name.trim().length < 2) {
       errors.name = 'الاسم يجب أن يكون على الأقل حرفين';
     }
 
-    // Email validation
     if (!formData.email.trim()) {
       errors.email = 'البريد الإلكتروني مطلوب';
     } else if (!validateEmail(formData.email)) {
       errors.email = 'يرجى إدخال بريد إلكتروني صحيح';
     }
 
-    // Phone validation
     if (!formData.phone.trim()) {
       errors.phone = 'رقم الهاتف مطلوب';
     } else if (!validatePhone(formData.phone)) {
       errors.phone = 'يرجى إدخال رقم هاتف صحيح (10 أرقام على الأقل)';
     }
 
-    // Service type validation
     if (!formData.serviceType) {
       errors.serviceType = 'يرجى اختيار نوع الخدمة';
     }
@@ -74,7 +68,6 @@ export default function ArtevaWebsite() {
       [name]: value
     });
 
-    // Clear error when user starts typing
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
@@ -94,7 +87,7 @@ export default function ArtevaWebsite() {
     setIsSubmitting(true);
   
     try {
-      const result = await addClient(formData); // <-- use server action
+      const result = await addClient(formData); 
   
       if (!result.success) {
         throw new Error(result.error || "Unknown error");
@@ -103,7 +96,6 @@ export default function ArtevaWebsite() {
       console.log("Inserted:", result.data);
       setSubmitSuccess(true);
   
-      // Reset form after success
       setTimeout(() => {
         setFormData({
           name: "",
@@ -135,71 +127,6 @@ export default function ArtevaWebsite() {
   };
 
 
-  // const handleSubmit = async () => {
-  //   const errors = validateForm();
-    
-  //   if (Object.keys(errors).length > 0) {
-  //     setFormErrors(errors);
-  //     return;
-  //   }
-
-  //   setIsSubmitting(true);
-    
-  //   try {
-  //     const consultationData = {
-  //       name: formData.name.trim(),
-  //       email: formData.email.trim().toLowerCase(),
-  //       phone: formData.phone.trim(),
-  //       business_name: formData.businessName.trim() || null, // Optional field
-  //       service_type: formData.serviceType
-      
-  //   }
-  //   const { data, error } = await supabase
-  //       .from('consultations')
-  //       .insert([consultationData])
-  //       .select(); // Optional: return the inserted data
-
-  //     if (error) {
-  //       console.error('Supabase error:', error);
-  //       throw new Error('حدث خطأ في قاعدة البيانات');
-  //     }
-
-  //     console.log('Data inserted successfully:', data);
-      
-  //     // Show success state
-  //     setSubmitSuccess(true);
-      
-  //     // Reset form after a delay
-  //     setTimeout(() => {
-  //       setFormData({
-  //         name: '',
-  //         email: '',
-  //         phone: '',
-  //         businessName: '',
-  //         serviceType: ''
-  //       });
-  //       setFormErrors({});
-  //       setShowConsultationForm(false);
-  //       setSubmitSuccess(false);
-  //     }, 3000);
-
-  //   } catch (error) {
-  //     console.error('Error submitting form:', error);
-      
-  //     // Show user-friendly error message
-  //     let errorMessage = 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى';
-      
-  //     if (error.message.includes('duplicate key value')) {
-  //       errorMessage = 'يبدو أن هذا البريد الإلكتروني مسجل مسبقاً';
-  //     } else if (error.message.includes('network')) {
-  //       errorMessage = 'تحقق من الاتصال بالإنترنت';
-  //     }
-      
-  //     alert(errorMessage);
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
 
   const closeForm = () => {
     setShowConsultationForm(false);
@@ -213,7 +140,6 @@ export default function ArtevaWebsite() {
   
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
-      {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -228,7 +154,6 @@ export default function ArtevaWebsite() {
               </div>
             </div>
             
-            {/* Desktop Menu */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4 space-x-reverse">
                 <a href="#home" className="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">الرئيسية</a>
@@ -615,32 +540,7 @@ export default function ArtevaWebsite() {
                       />
                     </div>
 
-                    {/* Service Type Field */}
-                    {/* <div>
-                      <label className="block text-sm font-semibold text-slate-200 mb-3">نوع الخدمة *</label>
-                      <select
-                        name="serviceType"
-                        value={formData.serviceType}
-                        onChange={handleInputChange}
-                        className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white ${
-                          formErrors.serviceType ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-blue-400'
-                        }`}
-                      >
-                        <option value="" className="bg-slate-800 text-white">اختر نوع الخدمة</option>
-                        <option value="website" className="bg-slate-800 text-white">تطوير موقع ويب</option>
-                        <option value="mobile" className="bg-slate-800 text-white">تطبيق هاتف محمول</option>
-                        <option value="branding" className="bg-slate-800 text-white">هوية بصرية وتصميم</option>
-                        <option value="uiux" className="bg-slate-800 text-white">تصميم UI/UX</option>
-                        <option value="ecommerce" className="bg-slate-800 text-white">متجر إلكتروني</option>
-                        <option value="consultation" className="bg-slate-800 text-white">استشارة تقنية</option>
-                      </select>
-                      {formErrors.serviceType && (
-                        <div className="flex items-center mt-2 text-red-400 text-sm">
-                          <AlertCircle size={16} className="ml-1" />
-                          {formErrors.serviceType}
-                        </div>
-                      )}
-                    </div> */}
+                    
 
 <div>
   <label className="block text-sm font-semibold text-slate-200 mb-3">
@@ -659,6 +559,7 @@ export default function ArtevaWebsite() {
     <option value="">اختر الخدمة</option>
     <option value="web">تطوير المواقع الإلكترونية</option>
     <option value="branding">الهوية البصرية والتصميم</option>
+
     <option value="uiux">UI/UX Design</option>
   </select>
 
