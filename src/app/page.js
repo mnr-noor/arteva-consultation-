@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Logo from './assets/logo.png'
 import Bg from './assets/bg.png'
 import { X, Menu, Globe, Palette, Code, Smartphone, Zap, Users, Award, AlertCircle, CheckCircle } from 'lucide-react';
+import {supabase} from './utils/supabase/client'
+import {addClient} from './actions/form'
 
 export default function ArtevaWebsite() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,6 +20,8 @@ export default function ArtevaWebsite() {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false); 
+
 
   // Validation functions
   const validateEmail = (email) => {
@@ -81,43 +85,132 @@ export default function ArtevaWebsite() {
 
   const handleSubmit = async () => {
     const errors = validateForm();
-    
+  
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
-
+  
     setIsSubmitting(true);
-    
+  
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('Form submitted:', formData);
-      alert('تم إرسال طلبك بنجاح! سنتواصل معك قريباً');
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        businessName: '',
-        serviceType: ''
-      });
-      setFormErrors({});
-      setShowConsultationForm(false);
+      const result = await addClient(formData); // <-- use server action
+  
+      if (!result.success) {
+        throw new Error(result.error || "Unknown error");
+      }
+  
+      console.log("Inserted:", result.data);
+      setSubmitSuccess(true);
+  
+      // Reset form after success
+      setTimeout(() => {
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          businessName: "",
+          serviceType: "",
+        });
+        setFormErrors({});
+        setShowConsultationForm(false);
+        setSubmitSuccess(false);
+      }, 3000);
+  
     } catch (error) {
-      alert('حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى');
+      console.error("Error submitting form:", error);
+  
+      let errorMessage = "حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى";
+  
+      if (error.message.includes("duplicate key value")) {
+        errorMessage = "يبدو أن هذا البريد الإلكتروني مسجل مسبقاً";
+      } else if (error.message.includes("network")) {
+        errorMessage = "تحقق من الاتصال بالإنترنت";
+      }
+  
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+
+  // const handleSubmit = async () => {
+  //   const errors = validateForm();
+    
+  //   if (Object.keys(errors).length > 0) {
+  //     setFormErrors(errors);
+  //     return;
+  //   }
+
+  //   setIsSubmitting(true);
+    
+  //   try {
+  //     const consultationData = {
+  //       name: formData.name.trim(),
+  //       email: formData.email.trim().toLowerCase(),
+  //       phone: formData.phone.trim(),
+  //       business_name: formData.businessName.trim() || null, // Optional field
+  //       service_type: formData.serviceType
+      
+  //   }
+  //   const { data, error } = await supabase
+  //       .from('consultations')
+  //       .insert([consultationData])
+  //       .select(); // Optional: return the inserted data
+
+  //     if (error) {
+  //       console.error('Supabase error:', error);
+  //       throw new Error('حدث خطأ في قاعدة البيانات');
+  //     }
+
+  //     console.log('Data inserted successfully:', data);
+      
+  //     // Show success state
+  //     setSubmitSuccess(true);
+      
+  //     // Reset form after a delay
+  //     setTimeout(() => {
+  //       setFormData({
+  //         name: '',
+  //         email: '',
+  //         phone: '',
+  //         businessName: '',
+  //         serviceType: ''
+  //       });
+  //       setFormErrors({});
+  //       setShowConsultationForm(false);
+  //       setSubmitSuccess(false);
+  //     }, 3000);
+
+  //   } catch (error) {
+  //     console.error('Error submitting form:', error);
+      
+  //     // Show user-friendly error message
+  //     let errorMessage = 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى';
+      
+  //     if (error.message.includes('duplicate key value')) {
+  //       errorMessage = 'يبدو أن هذا البريد الإلكتروني مسجل مسبقاً';
+  //     } else if (error.message.includes('network')) {
+  //       errorMessage = 'تحقق من الاتصال بالإنترنت';
+  //     }
+      
+  //     alert(errorMessage);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
   const closeForm = () => {
     setShowConsultationForm(false);
     setFormErrors({});
+    setSubmitSuccess(false);
   };
 
+
+
+
+  
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Navigation */}
@@ -523,7 +616,7 @@ export default function ArtevaWebsite() {
                     </div>
 
                     {/* Service Type Field */}
-                    <div>
+                    {/* <div>
                       <label className="block text-sm font-semibold text-slate-200 mb-3">نوع الخدمة *</label>
                       <select
                         name="serviceType"
@@ -547,7 +640,37 @@ export default function ArtevaWebsite() {
                           {formErrors.serviceType}
                         </div>
                       )}
-                    </div>
+                    </div> */}
+
+<div>
+  <label className="block text-sm font-semibold text-slate-200 mb-3">
+    نوع الخدمة *
+  </label>
+  <select
+    name="serviceType"
+    value={formData.serviceType}
+    onChange={handleInputChange}
+    className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white ${
+      formErrors.serviceType
+        ? 'border-red-400 focus:border-red-400'
+        : 'border-white/20 focus:border-blue-400'
+    }`}
+  >
+    <option value="">اختر الخدمة</option>
+    <option value="web">تطوير المواقع الإلكترونية</option>
+    <option value="branding">الهوية البصرية والتصميم</option>
+    <option value="uiux">UI/UX Design</option>
+  </select>
+
+  {formErrors.serviceType && (
+    <div className="flex items-center mt-2 text-red-400 text-sm">
+      <AlertCircle size={16} className="ml-1" />
+      {formErrors.serviceType}
+    </div>
+  )}
+</div>
+
+
 
                     {/* Submit Button */}
                     <button
