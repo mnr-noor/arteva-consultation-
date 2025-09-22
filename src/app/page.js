@@ -7,6 +7,8 @@ import Bg from './assets/bg.png'
 import { X, Menu, Globe, Palette, Code, Smartphone, Zap, Users, Award, AlertCircle, CheckCircle } from 'lucide-react';
 import {supabase} from './utils/supabase/client'
 import {addClient} from './actions/form'
+import Script from "next/script";
+
 
 export default function ArtevaWebsite() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -135,10 +137,75 @@ export default function ArtevaWebsite() {
   };
 
 
-
+  console.log("ENV CHECK:", {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 10) // only show first chars
+  });
+  
 
   
   return (
+
+
+
+    
+    
+    // {/* Meta Pixel Code */}
+    // <Script id="fb-pixel" strategy="afterInteractive">
+    //   {`
+    //     !function(f,b,e,v,n,t,s)
+    //     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    //     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    //     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    //     n.queue=[];t=b.createElement(e);t.async=!0;
+    //     t.src=v;s=b.getElementsByTagName(e)[0];
+    //     s.parentNode.insertBefore(t,s)}(window, document,'script',
+    //     'https://connect.facebook.net/en_US/fbevents.js');
+    //     fbq('init', '1089455180063239');
+    //     fbq('track', 'PageView');
+    //   `}
+    // </Script>
+
+    // {/* NoScript fallback */}
+    // <noscript>
+    //   <img
+    //     height="1"
+    //     width="1"
+    //     style={{ display: "none" }}
+    //     src="https://www.facebook.com/tr?id=1089455180063239&ev=PageView&noscript=1"
+    //   />
+    // </noscript>
+  
+
+    // <>
+    // {/* Facebook Pixel */}
+    // <Script id="facebook-pixel" strategy="afterInteractive">
+    //   {`
+    //     !function(f,b,e,v,n,t,s)
+    //     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    //     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    //     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    //     n.queue=[];t=b.createElement(e);t.async=!0;
+    //     t.src=v;s=b.getElementsByTagName(e)[0];
+    //     s.parentNode.insertBefore(t,s)}(window, document,'script',
+    //     'https://connect.facebook.net/en_US/fbevents.js');
+    //     fbq('init', '1089455180063239');
+    //     fbq('track', 'PageView');
+    //   `}
+    // </Script>
+    // <noscript>
+    //   <img
+    //     height="1"
+    //     width="1"
+    //     style={{ display: "none" }}
+    //     src="https://www.facebook.com/tr?id=1089455180063239&ev=PageView&noscript=1"
+    //     alt="facebook pixel"
+    //   />
+    // </noscript>
+
+
+
+
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <nav className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -569,6 +636,8 @@ export default function ArtevaWebsite() {
       {formErrors.serviceType}
     </div>
   )}
+
+  
 </div>
 
 
@@ -606,5 +675,6 @@ export default function ArtevaWebsite() {
         </div>
       )}
     </div>
+    
   );
 }
