@@ -295,7 +295,7 @@ export default function ArtevaWebsite() {
               onClick={() => setShowConsultationForm(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full text-lg font-medium transition-all transform hover:scale-105 shadow-lg"
             >
-              ابدأ مشروعك الآن
+              احجز استشارة مجانية
             </button>
             <button 
               onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })}
@@ -643,7 +643,7 @@ export default function ArtevaWebsite() {
 
 
                     {/* Submit Button */}
-                    <button
+                    {/* <button
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       className={`w-full py-4 px-6 rounded-xl font-semibold transition-all transform shadow-lg flex items-center justify-center ${
@@ -660,7 +660,33 @@ export default function ArtevaWebsite() {
                       ) : (
                         'إرسال الطلب'
                       )}
-                    </button>
+                    </button> */}
+
+
+                      {/* Submit Button */}
+                      <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+                      >
+                        {isSubmitting ? "جارٍ الإرسال..." : "إرسال الطلب"}
+                      </button>
+
+                      {/* Success Message */}
+                      {submitSuccess && (
+                        <div className="flex items-center mt-4 text-green-400 text-sm">
+                          <CheckCircle size={18} className="ml-2" />
+                          تم إرسال طلبك بنجاح! سنتواصل معك قريباً
+                        </div>
+                      )}
+
+                      {/* General Error Message */}
+                      {formErrors.submit && (
+                        <div className="flex items-center mt-4 text-red-400 text-sm">
+                          <AlertCircle size={18} className="ml-2" />
+                          {formErrors.submit}
+                        </div>
+                      )}
 
                     <div className="bg-blue-500/10 backdrop-blur-sm border border-blue-400/20 p-4 rounded-xl">
                       <p className="text-sm text-slate-200 text-center">
