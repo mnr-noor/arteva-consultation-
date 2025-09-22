@@ -7,7 +7,6 @@ import Bg from './assets/bg.png'
 import { X, Menu, Globe, Palette, Code, Smartphone, Zap, Users, Award, AlertCircle, CheckCircle } from 'lucide-react';
 import {supabase} from './utils/supabase/client'
 import {addClient} from './actions/form'
-import Script from "next/script";
 
 
 export default function ArtevaWebsite() {
