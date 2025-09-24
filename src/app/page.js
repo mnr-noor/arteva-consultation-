@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from "next/navigation";
+
 import Image from 'next/image';
 import Logo from './assets/logo.png'
 import Bg from './assets/bg.png'
 import { X, Menu, Globe, Palette, Code, Smartphone, Zap, Users, Award, AlertCircle, CheckCircle } from 'lucide-react';
 import {supabase} from './utils/supabase/client'
 import {addClient} from './actions/form'
+
 
 
 export default function ArtevaWebsite() {
@@ -23,6 +26,7 @@ export default function ArtevaWebsite() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false); 
 
+  const router = useRouter();
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -97,19 +101,23 @@ export default function ArtevaWebsite() {
       console.log("Inserted:", result.data);
       setSubmitSuccess(true);
   
-      setTimeout(() => {
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          businessName: "",
-          serviceType: "",
-        });
-        setFormErrors({});
-        setShowConsultationForm(false);
-        setSubmitSuccess(false);
-      }, 3000);
-  
+      // Close the form first
+      setShowConsultationForm(false);
+      
+      // Reset form state
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        businessName: "",
+        serviceType: "",
+      });
+      setFormErrors({});
+      setSubmitSuccess(false);
+      
+      // Navigate to thank you page
+      window.location.href = "/thankou";
+
     } catch (error) {
       console.error("Error submitting form:", error);
   
@@ -121,13 +129,11 @@ export default function ArtevaWebsite() {
         errorMessage = "تحقق من الاتصال بالإنترنت";
       }
   
-      alert(errorMessage);
+      setFormErrors({ submit: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-
 
   const closeForm = () => {
     setShowConsultationForm(false);
@@ -135,76 +141,12 @@ export default function ArtevaWebsite() {
     setSubmitSuccess(false);
   };
 
-
   console.log("ENV CHECK:", {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL,
     key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 10) // only show first chars
   });
   
-
-  
   return (
-
-
-
-    
-    
-    // {/* Meta Pixel Code */}
-    // <Script id="fb-pixel" strategy="afterInteractive">
-    //   {`
-    //     !function(f,b,e,v,n,t,s)
-    //     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    //     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    //     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    //     n.queue=[];t=b.createElement(e);t.async=!0;
-    //     t.src=v;s=b.getElementsByTagName(e)[0];
-    //     s.parentNode.insertBefore(t,s)}(window, document,'script',
-    //     'https://connect.facebook.net/en_US/fbevents.js');
-    //     fbq('init', '1089455180063239');
-    //     fbq('track', 'PageView');
-    //   `}
-    // </Script>
-
-    // {/* NoScript fallback */}
-    // <noscript>
-    //   <img
-    //     height="1"
-    //     width="1"
-    //     style={{ display: "none" }}
-    //     src="https://www.facebook.com/tr?id=1089455180063239&ev=PageView&noscript=1"
-    //   />
-    // </noscript>
-  
-
-    // <>
-    // {/* Facebook Pixel */}
-    // <Script id="facebook-pixel" strategy="afterInteractive">
-    //   {`
-    //     !function(f,b,e,v,n,t,s)
-    //     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    //     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    //     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    //     n.queue=[];t=b.createElement(e);t.async=!0;
-    //     t.src=v;s=b.getElementsByTagName(e)[0];
-    //     s.parentNode.insertBefore(t,s)}(window, document,'script',
-    //     'https://connect.facebook.net/en_US/fbevents.js');
-    //     fbq('init', '1089455180063239');
-    //     fbq('track', 'PageView');
-    //   `}
-    // </Script>
-    // <noscript>
-    //   <img
-    //     height="1"
-    //     width="1"
-    //     style={{ display: "none" }}
-    //     src="https://www.facebook.com/tr?id=1089455180063239&ev=PageView&noscript=1"
-    //     alt="facebook pixel"
-    //   />
-    // </noscript>
-
-
-
-
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <nav className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -606,86 +548,59 @@ export default function ArtevaWebsite() {
                       />
                     </div>
 
-                    
+                    {/* Service Type Field */}
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-200 mb-3">
+                        نوع الخدمة *
+                      </label>
+                      <select
+                        name="serviceType"
+                        value={formData.serviceType}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white ${
+                          formErrors.serviceType
+                            ? 'border-red-400 focus:border-red-400'
+                            : 'border-white/20 focus:border-blue-400'
+                        }`}
+                      >
+                        <option value="">اختر الخدمة</option>
+                        <option value="web">تطوير المواقع الإلكترونية</option>
+                        <option value="branding">الهوية البصرية والتصميم</option>
+                        <option value="uiux">UI/UX Design</option>
+                      </select>
 
-<div>
-  <label className="block text-sm font-semibold text-slate-200 mb-3">
-    نوع الخدمة *
-  </label>
-  <select
-    name="serviceType"
-    value={formData.serviceType}
-    onChange={handleInputChange}
-    className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white ${
-      formErrors.serviceType
-        ? 'border-red-400 focus:border-red-400'
-        : 'border-white/20 focus:border-blue-400'
-    }`}
-  >
-    <option value="">اختر الخدمة</option>
-    <option value="web">تطوير المواقع الإلكترونية</option>
-    <option value="branding">الهوية البصرية والتصميم</option>
-
-    <option value="uiux">UI/UX Design</option>
-  </select>
-
-  {formErrors.serviceType && (
-    <div className="flex items-center mt-2 text-red-400 text-sm">
-      <AlertCircle size={16} className="ml-1" />
-      {formErrors.serviceType}
-    </div>
-  )}
-
-  
-</div>
-
-
+                      {formErrors.serviceType && (
+                        <div className="flex items-center mt-2 text-red-400 text-sm">
+                          <AlertCircle size={16} className="ml-1" />
+                          {formErrors.serviceType}
+                        </div>
+                      )}
+                    </div>
 
                     {/* Submit Button */}
-                    {/* <button
+                    <button
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className={`w-full py-4 px-6 rounded-xl font-semibold transition-all transform shadow-lg flex items-center justify-center ${
-                        isSubmitting 
-                          ? 'bg-gray-600 cursor-not-allowed' 
-                          : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:scale-[1.02]'
-                      } text-white`}
+                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2"></div>
-                          جاري الإرسال...
-                        </>
-                      ) : (
-                        'إرسال الطلب'
-                      )}
-                    </button> */}
+                      {isSubmitting ? "جارٍ الإرسال..." : "إرسال الطلب"}
+                    </button>
 
+                    {/* Success Message */}
+                    {submitSuccess && (
+                      <div className="flex items-center mt-4 text-green-400 text-sm">
+                        <CheckCircle size={18} className="ml-2" />
+                        تم إرسال طلبك بنجاح! سنتواصل معك قريباً
+                      </div>
+                    )}
 
-                      {/* Submit Button */}
-                      <button
-                        onClick={handleSubmit}
-                        disabled={isSubmitting}
-                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
-                      >
-                        {isSubmitting ? "جارٍ الإرسال..." : "إرسال الطلب"}
-                      </button>
-
-                      {/* Success Message */}
-                      {submitSuccess && (
-                        <div className="flex items-center mt-4 text-green-400 text-sm">
-                          <CheckCircle size={18} className="ml-2" />
-                          تم إرسال طلبك بنجاح! سنتواصل معك قريباً
-                        </div>
-                      )}
-
-                      {/* General Error Message */}
-                      {formErrors.submit && (
-                        <div className="flex items-center mt-4 text-red-400 text-sm">
-                          <AlertCircle size={18} className="ml-2" />
-                          {formErrors.submit}
-                        </div>
-                      )}
+                    {/* General Error Message */}
+                    {formErrors.submit && (
+                      <div className="flex items-center mt-4 text-red-400 text-sm">
+                        <AlertCircle size={18} className="ml-2" />
+                        {formErrors.submit}
+                      </div>
+                    )}
 
                     <div className="bg-blue-500/10 backdrop-blur-sm border border-blue-400/20 p-4 rounded-xl">
                       <p className="text-sm text-slate-200 text-center">
@@ -700,6 +615,5 @@ export default function ArtevaWebsite() {
         </div>
       )}
     </div>
-    
   );
 }
