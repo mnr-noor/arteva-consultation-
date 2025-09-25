@@ -59,8 +59,8 @@ export default function ArtevaWebsite() {
       errors.phone = 'يرجى إدخال رقم هاتف صحيح (10 أرقام على الأقل)';
     }
 
-    if (!formData.serviceType) {
-      errors.serviceType = 'يرجى اختيار نوع الخدمة';
+    if (!formData.serviceType.trim()) {
+      errors.serviceType = 'هناك خطأ يجب ملء الخانة';
     }
 
     return errors;
@@ -553,21 +553,18 @@ export default function ArtevaWebsite() {
                       <label className="block text-sm font-semibold text-slate-200 mb-3">
                         نوع الخدمة *
                       </label>
-                      <select
+                      <input
+                        type="text"
                         name="serviceType"
                         value={formData.serviceType}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white ${
+                        placeholder="اكتب نوع الخدمة التي تريدها"
+                        className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border-2 rounded-xl focus:ring-2 focus:ring-blue-400 transition-all text-white placeholder-white/60 ${
                           formErrors.serviceType
                             ? 'border-red-400 focus:border-red-400'
                             : 'border-white/20 focus:border-blue-400'
                         }`}
-                      >
-                        <option value="">اختر الخدمة</option>
-                        <option value="web">تطوير المواقع الإلكترونية</option>
-                        <option value="branding">الهوية البصرية والتصميم</option>
-                        <option value="uiux">UI/UX Design</option>
-                      </select>
+                      />
 
                       {formErrors.serviceType && (
                         <div className="flex items-center mt-2 text-red-400 text-sm">
